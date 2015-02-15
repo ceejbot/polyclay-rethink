@@ -52,11 +52,6 @@ RethinkAdapter.prototype.connect = function()
     }).done();
 };
 
-function exponentialBackoff(attempt)
-{
-    return Math.min(Math.floor(Math.random() * Math.pow(2, attempt) + 10), 10000);
-}
-
 RethinkAdapter.prototype._createTable = function _createTable(tname, callback)
 {
     var self = this;
@@ -229,9 +224,6 @@ RethinkAdapter.prototype.merge = function(key, attributes, callback)
 
 RethinkAdapter.prototype.remove = function(object, callback)
 {
-    if (!object.key || !object.key.length)
-        throw(new Error('cannot delete a document without a key'));
-
     var self = this;
     self.objects.get(object.key).delete().run(self.connection, callback);
 };
@@ -301,8 +293,14 @@ RethinkAdapter.prototype.removeAttachment = function(object, name, callback)
 
 RethinkAdapter.prototype.shutdown = function(callback)
 {
+    var self = this;
+    
     if (!this.connection) return callback();
-    this.connection.close(callback);
+    this.connection.close(function()
+    {
+        self.connection = null;
+        callback();
+    });
 };
 
 RethinkAdapter.flatten = function(json)

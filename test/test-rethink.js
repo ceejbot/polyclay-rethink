@@ -62,21 +62,33 @@ describe('rethinkdb adapter', function()
 		Model.adapter.must.exist();
 		Model.adapter.constructor.must.equal(Model);
 		Model.adapter.tablename.must.equal(Model.prototype.plural);
-		Model.adapter.on('ready', function()
+		Model.adapter.once('ready', function()
 		{
 			Model.adapter.must.have.property('connection');
+			Model.adapter.connection.must.be.an.object();
 			done();
+		});
+		Model.adapter.on('error', function(err)
+		{
+			throw(err);
 		});
 	});
 
 	it('provision creates the database & table, if necessary', function(done)
 	{
+		var c = Model.adapter.connection;
+
 		Model.provision(function(err)
 		{
-			// check for existence of db
-			// check for existence of table
 			demand(err).not.exist();
-			done();
+			Rethink.dbList().run(c, function(err, dbs)
+			{
+				demand(err).not.exist();
+				dbs.must.be.an.array();
+				dbs.indexOf('test').must.be.above(-1);
+				// check for existence of table
+				done();
+			});
 		});
 	});
 
@@ -95,9 +107,7 @@ describe('rethinkdb adapter', function()
 		{
 			var obj = new Model();
 			obj.name = 'idless';
-			obj.save(function(err, reply)
-			{
-			});
+			obj.save(function(err, reply) {});
 		};
 
 		noID.must.throw(Error);
@@ -157,7 +167,6 @@ describe('rethinkdb adapter', function()
 			done();
 		});
 	});
-
 
 	it('can fetch in batches', function(done)
 	{
@@ -478,6 +487,28 @@ describe('rethinkdb adapter', function()
 				demand(err).not.exist();
 				done();
 			});
+		});
+	});
+
+	it('shutdown() closes the connection', function(done)
+	{
+		Model.adapter.shutdown(function()
+		{
+			demand(Model.adapter.connection).be.null();
+			done();
+		});
+	});
+
+	it('shutdown() can be called without a connection object', function(done)
+	{
+		Model.adapter.once('ready', function()
+		{
+			done();
+		});
+		Model.adapter.shutdown(function()
+		{
+			demand(Model.adapter.connection).be.null();
+			Model.adapter.connect(); // reconnect for the next test
 		});
 	});
 
