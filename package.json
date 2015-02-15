@@ -1,8 +1,24 @@
 {
   "name": "polyclay-rethink",
-  "version": "0.0.0",
   "description": "rethinkdb backing storage for polyclay models",
-  "main": "index.js",
+  "version": "0.0.0",
+  "author": "C J Silverio <ceejceej@github.com>",
+  "bugs": {
+    "url": "https://github.com/ceejbot/polyclay-rethink/issues"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "index.js",
+      "data-cover-never": [
+        "node_modules",
+        "test"
+      ],
+      "output-reporter": "spec",
+      "travis-cov": {
+        "threshold": 90
+      }
+    }
+  },
   "dependencies": {
     "async": "~0.9.0",
     "lodash": "~3.2.0",
@@ -13,25 +29,25 @@
     "mocha": "~2.1.0",
     "mocoverage": "~1.0.0",
     "must": "~0.12.0",
-    "polyclay": "~1.7.1"
+    "polyclay": "~1.7.1",
+    "travis-cov": "~0.2.5"
   },
-  "scripts": {
-    "test": "mocha -R spec -t 3000 test/test-*.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ceejbot/polyclay-rethink.git"
-  },
+  "homepage": "https://github.com/ceejbot/polyclay-rethink",
   "keywords": [
     "polyclay",
     "rethinkdb",
     "odm",
     "mapper"
   ],
-  "author": "C J Silverio <ceejceej@github.com>",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ceejbot/polyclay-rethink/issues"
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ceejbot/polyclay-rethink.git"
   },
-  "homepage": "https://github.com/ceejbot/polyclay-rethink"
+  "scripts": {
+    "test": "mocha -t 5000 --check-leaks --ui exports --require blanket -R mocoverage test/test-*.js",
+    "test-cov": "mocha --require blanket -R travis-cov test/test-*.js",
+    "test-travis": "mocha -R spec -t 5000 test/test-*.js && npm run test-cov"
+  }
 }
