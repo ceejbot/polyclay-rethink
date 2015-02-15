@@ -44,6 +44,11 @@ RethinkAdapter.prototype.connect = function()
     {
         self.connection = conn;
         self.emit('ready');
+    })
+    .error(function(err)
+    {
+        console.log(err);
+        self.emit('error', err);
     }).done();
 };
 
