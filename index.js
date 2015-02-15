@@ -109,7 +109,7 @@ RethinkAdapter.prototype.all = function all(callback)
         cursor.toArray(function(err, results)
         {
             if (err) return callback(err);
-            if (!results || !results.length) return callback(null, []);
+            if (!results || !results.length) return callback(null, [], true);
 
             var batched = _.map(results, function(json)
             {
@@ -119,7 +119,7 @@ RethinkAdapter.prototype.all = function all(callback)
             });
 
             cursor.close();
-            callback(null, batched);
+            callback(null, batched, true);
         });
     });
 };
