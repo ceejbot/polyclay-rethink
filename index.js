@@ -1,5 +1,6 @@
 var
     _       = require('lodash'),
+    assert  = require('assert'),
     async   = require('async'),
     events  = require('events'),
     Rethink = require('rethinkdb'),
@@ -20,6 +21,10 @@ RethinkAdapter.prototype.attempts    = 0;
 
 RethinkAdapter.prototype.configure = function(opts, modelfunc)
 {
+    assert(opts && _.isObject(opts), 'you must pass an options object');
+    assert(opts.database && _.isString(opts.database), 'you must pass a database name in opts.database');
+    assert(modelfunc && _.isFunction(modelfunc), 'you must pass a model constructor as the second argument');
+
     this.options = opts;
     this.tablename = opts.dbname || modelfunc.prototype.plural;
     this.constructor = modelfunc;

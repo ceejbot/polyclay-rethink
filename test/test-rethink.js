@@ -74,6 +74,39 @@ describe('rethinkdb adapter', function()
 		});
 	});
 
+	it('configure() throws without an options object', function()
+	{
+		function shouldThrow()
+		{
+			var adapter = new Adapter();
+			adapter.configure();
+		}
+
+		shouldThrow.must.throw(/options object/);
+	});
+
+	it('configure() throws without a database name option', function()
+	{
+		function shouldThrow()
+		{
+			var adapter = new Adapter();
+			adapter.configure({});
+		}
+
+		shouldThrow.must.throw(/database/);
+	});
+
+	it('configure() throws without a model constructor', function()
+	{
+		function shouldThrow()
+		{
+			var adapter = new Adapter();
+			adapter.configure({database: 'test'});
+		}
+
+		shouldThrow.must.throw(/constructor/);
+	});
+
 	it('provision creates the database & table, if necessary', function(done)
 	{
 		var c = Model.adapter.connection;
