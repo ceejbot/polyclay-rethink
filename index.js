@@ -44,11 +44,6 @@ RethinkAdapter.prototype.connect = function()
     {
         self.connection = conn;
         self.emit('ready');
-    })
-    .error(function(err)
-    {
-        console.log(err);
-        self.emit('error', err);
     }).done();
 };
 
@@ -294,7 +289,7 @@ RethinkAdapter.prototype.removeAttachment = function(object, name, callback)
 RethinkAdapter.prototype.shutdown = function(callback)
 {
     var self = this;
-    
+
     if (!this.connection) return callback();
     this.connection.close(function()
     {
