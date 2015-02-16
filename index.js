@@ -26,7 +26,7 @@ RethinkAdapter.prototype.configure = function(opts, modelfunc)
     assert(modelfunc && _.isFunction(modelfunc), 'you must pass a model constructor as the second argument');
 
     this.options = opts;
-    this.tablename = opts.dbname || modelfunc.prototype.plural;
+    this.tablename = opts.dbname || opts.tablename || modelfunc.prototype.plural;
     this.constructor = modelfunc;
 
     this.connect();

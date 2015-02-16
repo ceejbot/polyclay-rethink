@@ -25,9 +25,20 @@ polyclay.persist(Widget, 'partnum');
 
 var options =
 {
-    host:     'localhost',
-    port:     28015,
-    database: 'test',
+    host:      'localhost',
+    port:      28015,
+    authKey:   'optional auth key',
+    database:  'test', // required
+    tablename: 'widget_table', // optional
+    dbopts:    { }, // optional
 };
 Widget.setStorage(options, Adapter);
 ```
+
+If necessary, the adapter will create the database and the table named for the model. If `tablename` isn't provided, the model's plural will be used instead.
+
+If you need to specify options for table sharding, set them in `dbopts`. They'll be passed to `rethink.tableCreate()`.
+
+## TODO
+
+Secondary indexes & generated functions for them.
