@@ -1,7 +1,7 @@
 {
   "name": "polyclay-rethink",
   "description": "rethinkdb backing storage for polyclay models",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "author": "C J Silverio <ceejceej@github.com>",
   "bugs": {
     "url": "https://github.com/ceejbot/polyclay-rethink/issues"
