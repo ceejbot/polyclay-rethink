@@ -29,6 +29,26 @@ RethinkAdapter.prototype.configure = function(opts, modelfunc)
     this.tablename = opts.dbname || opts.tablename || modelfunc.prototype.plural;
     this.constructor = modelfunc;
 
+    this.db = Rethink.db(this.options.database);
+    this.objects = Rethink.table(this.tablename);
+    this.attachments = Rethink.table(this.tablename + '_attachments');
+
+    if (modelfunc.prototype.__index)
+	{
+        var self = this;
+        var db = this.objects;
+        var indexes = modelfunc.prototype.__index;
+
+        _.each(indexes, function(property)
+        {
+            var getter = 'by' + property[0].toUpperCase() + property.substr(1);
+            modelfunc[getter] = function(value, callback)
+            {
+                self.getAllBy(property, value, callback);
+            };
+        });
+	}
+
     this.connect();
 };
 
@@ -69,6 +89,21 @@ RethinkAdapter.prototype._createTable = function _createTable(tname, callback)
     });
 };
 
+RethinkAdapter.prototype._createIndex = function _createIndex(index, callback)
+{
+    var self = this;
+
+    self.objects.indexList()
+    .run(self.connection, function(err, indices)
+    {
+        if (err) return callback(err);
+        if (indices.indexOf(index) > -1)
+            return callback();
+
+        self.objects.indexCreate(index).run(self.connection, callback);
+    });
+};
+
 RethinkAdapter.prototype.provision = function(callback)
 {
     var self = this;
@@ -79,7 +114,21 @@ RethinkAdapter.prototype.provision = function(callback)
     // TODO cleanup-- yuck
     function makeAttachments()
     {
-        self._createTable(self.tablename + '_attachments', callback);
+        self._createTable(self.tablename + '_attachments', makeIndices);
+    }
+
+    function makeIndices()
+    {
+        var indexes = self.constructor.prototype.__index;
+        var actions = _.map(indexes, function(property)
+        {
+            var f = function(cb) { self._createIndex(property, cb); };
+            return f;
+        });
+        async.parallel(actions, function(err, results)
+        {
+            callback(err);
+        });
     }
 
     Rethink.dbList().run(self.connection, function(err, dbs)
@@ -87,6 +136,7 @@ RethinkAdapter.prototype.provision = function(callback)
         if (err) return callback(err);
         if (dbs.indexOf(self.options.database) > -1)
             return self._createTable(self.tablename, makeAttachments);
+
         Rethink.dbCreate(self.options.database)
         .run(self.connection, function(err, ignored)
         {
@@ -199,6 +249,28 @@ RethinkAdapter.prototype.getBatch = function(keylist, callback)
 
     self.objects
         .getAll(Rethink.args(keylist))
+        .coerceTo('array')
+        .run(self.connection, function(err, results)
+    {
+        if (err) return callback(err);
+        if (!results || !results.length) return callback(null, []);
+
+        var batched = _.map(results, function(json)
+        {
+            var obj = new self.constructor();
+            obj.initFromStorage(json);
+            return obj;
+        });
+
+        callback(null, batched);
+    });
+};
+
+RethinkAdapter.prototype.getAllBy = function(index, value, callback)
+{
+    var self = this;
+    self.objects
+        .getAll(value, {index: index})
         .coerceTo('array')
         .run(self.connection, function(err, results)
     {

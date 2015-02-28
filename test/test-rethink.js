@@ -35,6 +35,7 @@ describe('rethinkdb adapter', function()
 		required: [ 'name', 'is_valid', 'required_prop'],
 		singular: 'model',
 		plural: 'models',
+		index: [ 'name' ],
 		initialize: function()
 		{
 			this.ran_init = true;
@@ -107,7 +108,13 @@ describe('rethinkdb adapter', function()
 		shouldThrow.must.throw(/constructor/);
 	});
 
-	it('provision creates the database & table, if necessary', function(done)
+	it('configure() creates finder functions', function()
+	{
+		Model.must.have.property('byName');
+		Model.byName.must.be.a.function();
+	});
+
+	it('provision creates the database if necessary', function(done)
 	{
 		var c = Model.adapter.connection;
 
@@ -119,13 +126,37 @@ describe('rethinkdb adapter', function()
 				demand(err).not.exist();
 				dbs.must.be.an.array();
 				dbs.indexOf('test').must.be.above(-1);
-				// check for existence of table
 				done();
 			});
 		});
 	});
 
-	it('provision can be called more than once safely', function(done)
+	it('provision creates the table if necessary', function(done)
+	{
+		var c = Model.adapter.connection;
+		Model.adapter.db
+			.tableList()
+			.run(c, function(err, tables)
+		{
+			demand(err).not.exist();
+			tables.must.be.an.array();
+			tables.indexOf('models').must.be.above(-1);
+			done();
+		});
+	});
+
+	it('provision() creates requested indexes', function(done)
+	{
+		Model.adapter.objects.indexList()
+	    .run(Model.adapter.connection, function(err, indices)
+		{
+			demand(err).not.exist();
+			indices.indexOf('name').must.be.above(-1);
+			done();
+		});
+	});
+
+	it('provision() can be called more than once safely', function(done)
 	{
 		Model.provision(function(err)
 		{
@@ -134,7 +165,7 @@ describe('rethinkdb adapter', function()
 		});
 	});
 
-	it('throws when asked to save a document without a key', function()
+	it('save() throws when asked to save a document without a key', function()
 	{
 		var noID = function()
 		{
@@ -146,7 +177,7 @@ describe('rethinkdb adapter', function()
 		noID.must.throw(Error);
 	});
 
-	it('can save a document in the db', function(done)
+	it('save() can save a document in the db', function(done)
 	{
 		instance = new Model();
 		instance.update(
@@ -170,7 +201,7 @@ describe('rethinkdb adapter', function()
 		});
 	});
 
-	it('can retrieve the saved document', function(done)
+	it('Model.get() can retrieve the saved document', function(done)
 	{
 		Model.get(instance.key, function(err, retrieved)
 		{
@@ -273,6 +304,41 @@ describe('rethinkdb adapter', function()
 					done();
 				});
 			});
+		});
+	});
+
+	it('getAllBy() returns inflated objects from an index', function(done)
+	{
+		Model.adapter.getAllBy('name', 'two', function(err, objs)
+		{
+			demand(err).not.exist();
+			objs.must.be.an.array();
+			objs.length.must.equal(1);
+			objs[0].name.must.equal('two');
+			done();
+		});
+	});
+
+	it('getAllBy() returns an empty list when there are no matches', function(done)
+	{
+		Model.adapter.getAllBy('name', 'notfound', function(err, objs)
+		{
+			demand(err).not.exist();
+			objs.must.be.an.array();
+			objs.length.must.equal(0);
+			done();
+		});
+	});
+
+	it('index finders return arrays of inflated objects', function(done)
+	{
+		Model.byName('two', function(err, objs)
+		{
+			demand(err).not.exist();
+			objs.must.be.an.array();
+			objs.length.must.equal(1);
+			objs[0].name.must.equal('two');
+			done();
 		});
 	});
 

@@ -39,6 +39,19 @@ If necessary, the adapter will create the database and the table named for the m
 
 If you need to specify options for table sharding, set them in `dbopts`. They'll be passed to `rethink.tableCreate()`.
 
+## Secondary indexes
+
+To create a secondary index on a property, add the name of the property to the `index` option in the model builder. This option must be an array.
+
+In the example above, a secondary index is created for the `name` property. A finder named `byName()` is created on the model constructor. This function will always start with `by` and then add the name of the property with the first letter upper-cased. E.g., if you create an index for a property named `snake_case`, you'll get a finder named `bySnake_case`, which will be silly-looking but is at least predictable.
+
+```javascript
+Widget.byName('flux capacitor', function(err, widgets)
+{
+    apply21Gigawatts(widgets[0]);
+});
+```
+
 ## TODO
 
-Secondary indexes & generated functions for them.
+Make the finders flexible about promises vs arrays.
