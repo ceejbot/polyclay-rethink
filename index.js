@@ -46,6 +46,8 @@ RethinkAdapter.prototype.configure = function(opts, modelfunc)
             {
                 self.getAllBy(property, value, callback);
             };
+            var alias = 'find' + getter[0].toUpperCase() + getter.substr(1);
+            modelfunc[alias] = modelfunc[getter];
         });
 	}
 

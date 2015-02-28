@@ -112,9 +112,11 @@ describe('rethinkdb adapter', function()
 	{
 		Model.must.have.property('byName');
 		Model.byName.must.be.a.function();
+		Model.must.have.property('findByName');
+		Model.findByName.must.be.a.function();
 	});
 
-	it('provision creates the database if necessary', function(done)
+	it('provision() creates the database if necessary', function(done)
 	{
 		var c = Model.adapter.connection;
 
@@ -131,7 +133,7 @@ describe('rethinkdb adapter', function()
 		});
 	});
 
-	it('provision creates the table if necessary', function(done)
+	it('provision() creates the table if necessary', function(done)
 	{
 		var c = Model.adapter.connection;
 		Model.adapter.db
