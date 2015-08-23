@@ -29,6 +29,7 @@ RethinkAdapter.prototype.configure = function(opts, modelfunc)
     this.tablename = opts.dbname || opts.tablename || modelfunc.prototype.plural;
     this.constructor = modelfunc;
 
+    this.Rethink = Rethink;
     this.db = Rethink.db(this.options.database);
     this.objects = Rethink.table(this.tablename);
     this.attachments = Rethink.table(this.tablename + '_attachments');

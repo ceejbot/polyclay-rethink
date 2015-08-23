@@ -118,6 +118,7 @@ describe('rethinkdb adapter', function()
 
 	it('provision() creates the database if necessary', function(done)
 	{
+		this.timeout(8000);
 		var c = Model.adapter.connection;
 
 		Model.provision(function(err)
