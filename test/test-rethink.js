@@ -8,7 +8,7 @@ var
 	polyclay = require('polyclay'),
 	Rethink  = require('rethinkdb'),
 	Adapter  = require('../index')
-	;
+;
 
 var testDir = process.cwd();
 if (path.basename(testDir) !== 'test')
@@ -138,8 +138,8 @@ describe('rethinkdb adapter', function()
 	{
 		var c = Model.adapter.connection;
 		Model.adapter.db
-			.tableList()
-			.run(c, function(err, tables)
+		.tableList()
+		.run(c, function(err, tables)
 		{
 			demand(err).not.exist();
 			tables.must.be.an.array();
@@ -151,7 +151,7 @@ describe('rethinkdb adapter', function()
 	it('provision() creates requested indexes', function(done)
 	{
 		Model.adapter.objects.indexList()
-	    .run(Model.adapter.connection, function(err, indices)
+		.run(Model.adapter.connection, function(err, indices)
 		{
 			demand(err).not.exist();
 			indices.indexOf('name').must.be.above(-1);
@@ -223,7 +223,7 @@ describe('rethinkdb adapter', function()
 
 	it('can update the document', function(done)
 	{
-		instance.name = "New name";
+		instance.name = 'New name';
 		instance.isDirty().must.be.true();
 		instance.save(function(err, response)
 		{
@@ -455,7 +455,6 @@ describe('rethinkdb adapter', function()
 		});
 	});
 
-
 	it('caches an attachment after it is fetched', function(done)
 	{
 		instance.avatar = attachmentdata;
@@ -466,7 +465,7 @@ describe('rethinkdb adapter', function()
 			instance.fetch_avatar(function(err, imagedata)
 			{
 				demand(err).not.exist();
-				var cached = instance.__attachments['avatar'].body;
+				var cached = instance.__attachments.avatar.body;
 				cached.must.exist();
 				(cached instanceof Buffer).must.equal(true);
 				polyclay.dataLength(cached).must.equal(polyclay.dataLength(attachmentdata));
@@ -617,7 +616,7 @@ describe('rethinkdb adapter', function()
 	after(function(done)
 	{
 		Rethink.dbDrop('test')
-			.run(Model.adapter.connection, function(err)
+		.run(Model.adapter.connection, function(err)
 		{
 			done();
 		});
