@@ -5,7 +5,7 @@ var
 	events  = require('events'),
 	Rethink = require('rethinkdb'),
 	util    = require('util')
-;
+	;
 
 var RethinkAdapter = module.exports = function RethinkAdapter()
 {
@@ -37,7 +37,6 @@ RethinkAdapter.prototype.configure = function(opts, modelfunc)
 	if (modelfunc.prototype.__index)
 	{
 		var self = this;
-		var db = this.objects;
 		var indexes = modelfunc.prototype.__index;
 
 		_.each(indexes, function(property)
@@ -59,8 +58,7 @@ RethinkAdapter.prototype.connect = function()
 {
 	var self = this;
 
-	var opts =
-	{
+	var opts = {
 		host:    this.options.host || 'localhost',
 		port:    this.options.port || 28015,
 		authKey: this.options.authKey,
@@ -180,7 +178,7 @@ RethinkAdapter.prototype.all = function all(callback)
 RethinkAdapter.prototype.save = function save(object, json, callback)
 {
 	if (!object.key || !object.key.length)
-		throw(new Error('cannot save a document without a key'));
+		throw new Error('cannot save a document without a key');
 
 	var self = this;
 	var payload = RethinkAdapter.flatten(json);

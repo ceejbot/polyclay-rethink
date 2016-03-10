@@ -6,36 +6,19 @@
   "bugs": {
     "url": "https://github.com/ceejbot/polyclay-rethink/issues"
   },
-  "config": {
-    "blanket": {
-      "pattern": "index.js",
-      "data-cover-never": [
-        "node_modules",
-        "test"
-      ],
-      "output-reporter": "spec",
-      "travis-cov": {
-        "threshold": 90
-      }
-    }
-  },
   "dependencies": {
-    "async": "~1.4.2",
-    "lodash": "~3.3.1",
+    "async": "~1.5.2",
+    "lodash": "~4.6.1",
     "p-promise": "~0.5.0",
-    "polyclay": "~1.7.2",
-    "rethinkdb": "~2.1.0"
+    "rethinkdb": "~2.2.2"
   },
   "devDependencies": {
-    "blanket": "~1.1.7",
-    "jscs": "~2.1.0",
-    "jshint": "~2.8.0",
-    "lodash": "~3.10.1",
-    "mocha": "~2.2.5",
-    "mocoverage": "~1.0.0",
-    "must": "~0.12.0",
-    "polyclay": "~1.7.1",
-    "travis-cov": "~0.2.5"
+    "coveralls": "~2.11.8",
+    "eslint": "~2.3.0",
+    "mocha": "~2.4.5",
+    "must": "~0.13.1",
+    "nyc": "~6.0.0",
+    "polyclay": "~1.8.0"
   },
   "homepage": "https://github.com/ceejbot/polyclay-rethink",
   "keywords": [
@@ -51,9 +34,9 @@
     "url": "https://github.com/ceejbot/polyclay-rethink.git"
   },
   "scripts": {
-    "lint": "jshint index.js test/test-rethink.js && jscs  index.js test/test-rethink.js",
-    "test": "mocha -t 5000 --check-leaks --ui exports --require blanket -R mocoverage test/test-*.js",
-    "test-cov": "mocha -t 10000 --require blanket -R travis-cov test/test-*.js",
-    "test-travis": "mocha -R spec -t 10000 test/test-*.js && npm run test-cov && npm run lint"
+    "coverage": "nyc check-coverage --lines 90 --functions 100 --branches 70",
+    "lint": "eslint index.js test/test-rethink.js",
+    "test": "mocha -t 5000 --check-leaks -R spec test/",
+    "travis": "nyc mocha -t 5000 --R spec test/ && npm run coverage"
   }
 }

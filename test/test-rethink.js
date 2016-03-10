@@ -2,13 +2,12 @@
 
 var
 	demand   = require('must'),
-	events   = require('events'),
 	fs       = require('fs'),
 	path     = require('path'),
 	polyclay = require('polyclay'),
 	Rethink  = require('rethinkdb'),
 	Adapter  = require('../index')
-;
+	;
 
 var testDir = process.cwd();
 if (path.basename(testDir) !== 'test')
@@ -17,8 +16,7 @@ var attachmentdata = fs.readFileSync(path.join(testDir, 'test.png'));
 
 describe('rethinkdb adapter', function()
 {
-	var modelDefinition =
-	{
+	var modelDefinition = {
 		properties:
 		{
 			key:           'string',
@@ -42,7 +40,7 @@ describe('rethinkdb adapter', function()
 		}
 	};
 
-	var Model, instance, another, hookTest, hookid;
+	var Model, instance;
 
 	before(function()
 	{
@@ -52,8 +50,7 @@ describe('rethinkdb adapter', function()
 
 	it('can be configured for database access', function(done)
 	{
-		var options =
-		{
+		var options = {
 			host:     'localhost',
 			port:     28015,
 			database: 'test',
@@ -71,7 +68,7 @@ describe('rethinkdb adapter', function()
 		});
 		Model.adapter.on('error', function(err)
 		{
-			throw(err);
+			throw err;
 		});
 	});
 
@@ -174,7 +171,7 @@ describe('rethinkdb adapter', function()
 		{
 			var obj = new Model();
 			obj.name = 'idless';
-			obj.save(function(err, reply) {});
+			obj.save(function(ignored, reply) {});
 		};
 
 		noID.must.throw(Error);
@@ -183,8 +180,7 @@ describe('rethinkdb adapter', function()
 	it('save() can save a document in the db', function(done)
 	{
 		instance = new Model();
-		instance.update(
-		{
+		instance.update({
 			key: '1',
 			name: 'test',
 			created: Date.now(),
@@ -243,6 +239,7 @@ describe('rethinkdb adapter', function()
 		obj.key = '2';
 		obj.save(function(err, response)
 		{
+			demand(err).not.exist();
 			ids.push(obj.key);
 
 			Model.get(ids, function(err, itemlist)
@@ -374,6 +371,7 @@ describe('rethinkdb adapter', function()
 	{
 		Model.get(instance.key, function(err, retrieved)
 		{
+			demand(err).not.exist();
 			retrieved.fetch_frogs(function(err, frogs)
 			{
 				demand(err).not.exist();
@@ -522,6 +520,7 @@ describe('rethinkdb adapter', function()
 		obj2.name = 'two';
 		obj2.save(function(err, response)
 		{
+			demand(err).not.exist();
 			Model.get('2', function(err, obj)
 			{
 				demand(err).not.exist();
@@ -618,6 +617,7 @@ describe('rethinkdb adapter', function()
 		Rethink.dbDrop('test')
 		.run(Model.adapter.connection, function(err)
 		{
+			demand(err).not.exist();
 			done();
 		});
 	});
