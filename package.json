@@ -34,7 +34,7 @@
     "url": "https://github.com/ceejbot/polyclay-rethink.git"
   },
   "scripts": {
-    "coverage": "nyc check-coverage --lines 90 --functions 100 --branches 70",
+    "coverage": "nyc check-coverage --lines 90 --functions 90 --branches 70",
     "lint": "eslint index.js test/test-rethink.js",
     "test": "mocha -t 5000 --check-leaks -R spec test/",
     "travis": "nyc mocha -t 5000 --R spec test/ && npm run coverage"
